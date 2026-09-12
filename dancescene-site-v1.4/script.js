@@ -80,7 +80,7 @@ const detailContent = {
     sophie: {
       kicker: 'Meet the team', title: 'Miss Sophie',
       intro: 'Principal and Director of Dancescene, leading the school and its community since 2007.',
-      meta: [['Role','Principal / Director'],['Dancescene','Since 2007'],['Training','ISTD'],['Location','Northampton']],
+      meta: [['Role','Principal / Director'],['Dancescene','Since 2007'],['Exam board','ISTD'],['Location','Northampton']],
       copy: '<p>Miss Sophie founded and leads Dancescene, creating a school where high-quality dance training sits alongside confidence, friendship and a genuine sense of belonging.</p><p>Her full biography, teaching qualifications and favourite Dancescene memories can be added here once supplied. This profile is designed to hold a proper story without cluttering the main homepage.</p><h3>What matters most</h3><p>The aim is for every dancer, from a toddler taking their first class to an adult returning to tap, to feel welcome, supported and proud of their progress.</p>'
     },
     'teacher-2': {
@@ -140,6 +140,51 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.clas
 modalCta.addEventListener('click', closeDetail);
 
 
+
+// Upcoming events carousel. Add more objects here later; with one event, the control intentionally cycles the same card.
+const newsEvents = [
+  {
+    tag: 'Coming in 2027',
+    title: 'Disneyland Paris 2027 ✨',
+    copy: 'Dancescene may be taking another little bit of Northampton magic to Disneyland Paris in 2027. Keep your eyes on our socials for all the sparkle, stage news and trip details as plans take shape.',
+    meta: 'More information coming in the new year'
+  }
+];
+const eventCard = document.getElementById('event-card');
+const eventTag = document.getElementById('event-tag');
+const eventTitle = document.getElementById('event-title');
+const eventCopy = document.getElementById('event-copy');
+const eventMeta = document.getElementById('event-meta');
+const eventDots = document.getElementById('event-dots');
+const eventPrev = document.getElementById('event-prev');
+const eventNext = document.getElementById('event-next');
+let eventPosition = 0;
+const eventSlots = newsEvents.length === 1 ? 3 : newsEvents.length;
+
+function renderEventDots(){
+  if (!eventDots) return;
+  eventDots.innerHTML = Array.from({length:eventSlots}, (_,i) => `<span class="event-dot${i===eventPosition?' active':''}"></span>`).join('');
+}
+function showEvent(direction=1){
+  if (!eventCard) return;
+  eventCard.classList.add('event-changing');
+  setTimeout(() => {
+    eventPosition = (eventPosition + direction + eventSlots) % eventSlots;
+    const item = newsEvents[eventPosition % newsEvents.length];
+    eventTag.textContent = item.tag;
+    eventTitle.textContent = item.title;
+    eventCopy.textContent = item.copy;
+    eventMeta.textContent = item.meta;
+    renderEventDots();
+    eventCard.classList.remove('event-changing');
+  }, 150);
+}
+if (eventPrev && eventNext) {
+  renderEventDots();
+  eventPrev.addEventListener('click', () => showEvent(-1));
+  eventNext.addEventListener('click', () => showEvent(1));
+}
+
 // Album-style gallery pop-outs. Replace the placeholder entries with real images later.
 const galleryAlbums = {
   performances: {
@@ -186,10 +231,6 @@ function openGallery(trigger) {
   galleryScroll.innerHTML = album.photos.map((name, i) => `
     <article class="gallery-photo-card">
       <div class="gallery-photo-placeholder"><span>${String(i + 1).padStart(2,'0')}</span><strong>${name}</strong></div>
-      <div class="gallery-photo-actions">
-        <span>Photo ${String(i + 1).padStart(2,'0')}</span>
-        <button type="button" class="buy-photo" aria-label="Buy ${name}">Buy print</button>
-      </div>
     </article>`).join('');
   galleryModal.classList.add('open');
   galleryModal.setAttribute('aria-hidden','false');
@@ -206,10 +247,3 @@ function closeGallery() {
 document.querySelectorAll('[data-gallery-id]').forEach(card => card.addEventListener('click', () => openGallery(card)));
 document.querySelectorAll('[data-gallery-close]').forEach(el => el.addEventListener('click', closeGallery));
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && galleryModal.classList.contains('open')) closeGallery(); });
-
-galleryScroll.addEventListener('click', e => {
-  const button = e.target.closest('.buy-photo');
-  if (!button) return;
-  button.textContent = 'Ordering coming later';
-  setTimeout(() => button.textContent = 'Buy print', 1800);
-});
